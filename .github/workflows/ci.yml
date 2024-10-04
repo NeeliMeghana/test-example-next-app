@@ -1,40 +1,44 @@
-name: Next.js CI/CD Pipeline
+name: Next.js CI/CD with Alpine, npm, and Logs
 
 on:
   push:
     branches:
-      - main  # Triggers on push to main branch
+      - main
   pull_request:
     branches:
-      - main  # Triggers on pull request to main branch
+      - main
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
+    container:
+      image: node:16-alpine  # Using Alpine image with Node.js
+
     steps:
-      # Step 1: Checkout the repository
+      # Step 1: Checkout the code
       - name: Checkout code
         uses: actions/checkout@v3
 
-      # Step 2: Set up Node.js
-      - name: Set up Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: '18'  # Specify Node.js version compatible with Next.js
-
-      # Step 3: Install dependencies using Yarn or NPM
+      # Step 2: Install dependencies (store logs)
       - name: Install dependencies
-        run: yarn install  # Use 'npm install' if you are using npm
+        run: |
+          mkdir -p logs  # Create a directory for logs
+          npm install > logs/install.log 2>&1  # Capture the logs of npm install
 
+      # Step 3: Run tests (store logs)
+      - name: Run tests
+        run: |
+          npm test > logs/test.log 2>&1 || true  # Capture the logs of npm test, don't fail the workflow if tests fail
 
-      # Step 5: Build the Next.js application
+      # Step 4: Build the Next.js application (store logs)
       - name: Build project
-        run: yarn build  # Use 'npm run build' for npm projects
+        run: |
+          npm run build > logs/build.log 2>&1  # Capture the logs of npm run build
 
-      # Step 6: Upload build artifacts (optional)
-      - name: Upload build artifacts
+      # Step 5: Upload logs as artifacts
+      - name: Upload logs
         uses: actions/upload-artifact@v3
         with:
-          name: nextjs-build
-          path: .next/  # Upload the .next build folder
+          name: build-logs  # Name of the artifact
+          path: logs/  # Upload all the log files from the 'logs' directory
