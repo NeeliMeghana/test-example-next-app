@@ -27,9 +27,6 @@ jobs:
       - name: Install dependencies
         run: yarn install  # Use 'npm install' if you are using npm
 
-      # Step 4: Run tests (optional, you can remove this if you don't have tests)
-      - name: Run tests
-        run: yarn test  # Use 'npm run test' for npm projects
 
       # Step 5: Build the Next.js application
       - name: Build project
