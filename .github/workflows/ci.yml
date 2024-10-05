@@ -57,7 +57,7 @@ jobs:
 
       # Step 3: Add SSH private key to authenticate with the server
       - name: Add SSH private key
-        uses: webfactory/ssh-agent@v0.8.1
+        uses: webfactory/ssh-agent@v0.5.3
         with:
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}  # Using the SSH private key stored in GitHub Secrets
 
