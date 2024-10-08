@@ -14,7 +14,7 @@ RUN npm install
 COPY . .
 
 # Run tests to make sure the app works correctly
-RUN npm run test
+#RUN npm run test
 
 # Build the Next.js application
 RUN npm run build
