@@ -59,7 +59,7 @@ jobs:
       - name: Add SSH private key
         uses: webfactory/ssh-agent@v0.5.3
         with:
-          ssh-private-key: ${{ secrets.NETXJSCICD}}  # Using the SSH private key stored in GitHub Secrets
+          ssh-private-key: ${{ secrets.NETXJSCICD }}  # Using the SSH private key stored in GitHub Secrets
 
       # Step 4: Deploy to test server
       - name: Deploy to test server
