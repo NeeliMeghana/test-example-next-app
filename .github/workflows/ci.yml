@@ -1,4 +1,4 @@
-name: Next.js CI/CD with Alpine, npm, and Logs
+name: Next.js CI with Docker Build and Test
 
 on:
   push:
@@ -9,65 +9,26 @@ on:
       - main
 
 jobs:
-  build:
+  build-and-test:
     runs-on: ubuntu-latest
-    container:
-      image: node:18-alpine  # Using Alpine image with Node.js
 
     steps:
       # Step 1: Checkout the code
       - name: Checkout code
         uses: actions/checkout@v3
 
-      # Step 2: Install dependencies (store logs)
-      - name: Install dependencies
-        run: |
-          mkdir -p logs  # Create a directory for logs
-          npm install > logs/install.log 2>&1  # Capture the logs of npm install
+      # Step 2: Set up Docker Buildx (for building Docker images)
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
 
-      # Step 3: Run tests (store logs)
-      - name: Run tests
-        run: |
-          npm test > logs/test.log 2>&1 || true  # Capture the logs of npm test, don't fail the workflow if tests fail
+      # Step 3: Build the Docker image
+      - name: Build Docker image
+        run: docker build -t test-app-nextjs-app:latest .
 
-      # Step 4: Build the Next.js application (store logs)
-      - name: Build project
-        run: |
-          npm run build > logs/build.log 2>&1  # Capture the logs of npm run build
+      # Step 4: Run tests in the Docker container
+      - name: Test the application in Docker
+        run: docker run --rm test-app-nextjs-app:latest npm run test
 
-      # Step 5: Upload logs as artifacts
-      - name: Upload logs
-        uses: actions/upload-artifact@v3
-        with:
-          name: build-logs  # Name of the artifact
-          path: logs/  # Upload all the log files from the 'logs' directory
-
-  deploy:
-    runs-on: ubuntu-latest
-    needs: build  # Deploy will only run after the build job succeeds
-
-    steps:
-      # Step 1: Checkout the code
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      # Step 2: Install SSH Client
-      - name: Install SSH client
-        run: sudo apt-get update && sudo apt-get install -y openssh-client
-
-      # Step 3: Add SSH private key to authenticate with the server
-      - name: Add SSH private key
-        uses: webfactory/ssh-agent@v0.5.3
-        with:
-          ssh-private-key: ${{ secrets.NETXJSCICD }}  # Using the SSH private key stored in GitHub Secrets
-
-      # Step 4: Deploy to test server
-      - name: Deploy to test server
-        run: |
-          ssh -o StrictHostKeyChecking=no root@68.183.94.46 << 'EOF'
-            cd /home/test-example-next-app-main
-            git pull origin main  # Pull the latest changes from the main branch
-            npm install --production  # Install production dependencies
-            npm run build  # Rebuild the Next.js application on the server
-            pm2 restart next-app || pm2 start npm --name "next-app" -- run start  # Restart or start the application using pm2
-          EOF
+      # Step 5: Build the application in Docker (optional, depending on the test)
+      - name: Build application in Docker (after tests)
+        run: docker run --rm test-app-nextjs-app:latest npm run build
