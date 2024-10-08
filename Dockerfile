@@ -7,11 +7,14 @@ WORKDIR /usr/src/app
 # Copy the package.json and package-lock.json
 COPY package*.json ./
 
-# Install the production dependencies
-RUN npm install --production
+# Install all dependencies (including dev dependencies for testing)
+RUN npm install
 
 # Copy the rest of the application source code
 COPY . .
+
+# Run tests to make sure the app works correctly
+RUN npm run test
 
 # Build the Next.js application
 RUN npm run build
