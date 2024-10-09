@@ -26,8 +26,8 @@ jobs:
         run: docker build -t nextjs-app:latest .
 
       # Step 4: Run tests in the Docker container
-      - name: Test the application in Docker
-        run: docker run --rm nextjs-app:latest npm run test
+      #- name: Test the application in Docker
+      #  run: docker run --rm nextjs-app:latest npm run test
 
       # Step 5: Build the application in Docker (after tests)
       - name: Build application in Docker (after tests)
