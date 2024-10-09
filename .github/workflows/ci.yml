@@ -59,7 +59,7 @@ jobs:
       # Step 4: Save Docker image to a file
       - name: Save Docker image as tar file
         run: |
-          IMAGE_NAME="nextjs-app:latest"
+          IMAGE_NAME="nextjs-app"
           if docker images | grep -q "$IMAGE_NAME"; then
             docker save $IMAGE_NAME -o nextjs-app.tar
           else
