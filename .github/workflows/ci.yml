@@ -52,15 +52,26 @@ jobs:
         with:
           ssh-private-key: ${{ secrets.NETXJSCICD }}
 
-      # Step 3: Save Docker image to a file
-      - name: Save Docker image as tar file
-        run: docker save nextjs-app:latest -o nextjs-app.tar
+      # Step 3: Verify that Docker image exists before saving
+      - name: List Docker images
+        run: docker images
 
-      # Step 4: Copy Docker image to the server
+      # Step 4: Save Docker image to a file
+      - name: Save Docker image as tar file
+        run: |
+          IMAGE_NAME="nextjs-app:latest"
+          if docker images | grep -q "$IMAGE_NAME"; then
+            docker save $IMAGE_NAME -o nextjs-app.tar
+          else
+            echo "Error: Docker image $IMAGE_NAME not found"
+            exit 1
+          fi
+
+      # Step 5: Copy Docker image to the server
       - name: Copy Docker image to the server
         run: scp -o StrictHostKeyChecking=no nextjs-app.tar root@68.183.94.46:/home/nextjs-app.tar
 
-      # Step 5: Load and run the Docker image on the server
+      # Step 6: Load and run the Docker image on the server
       - name: Deploy Docker image to the server
         run: |
           ssh -o StrictHostKeyChecking=no root@68.183.94.46 << 'EOF'
