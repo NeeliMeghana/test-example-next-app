@@ -50,5 +50,5 @@ jobs:
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
         with:
-          github_token: ${{ NEXT.KEY }} #this is the key of the access token
+          github_token: ${{secrets.NEXT }} #this is the key of the access token
           publish_dir: ./next/build
