@@ -20,20 +20,19 @@ jobs:
 
       - name: Install Dependencies
         run: |
-          cd next
+          
           npm install
 
       - name: Build Project
         run: |
-          cd next
+         
           npm run build
 
       - name: Upload artifact to enable deployment
         uses: actions/upload-artifact@v3
         with:
           name: poduction file
-          path: ./next/build
-
+          
   # Deploy Job
   deploy:
    
@@ -45,10 +44,9 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: poduction file
-          path: ./next/build
-
+          
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{secrets.NEXT }} #this is the key of the access token
-          publish_dir: ./next/build
+          
