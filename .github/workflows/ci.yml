@@ -1,85 +1,54 @@
-name: Next.js CI/CD with Docker Build, Test, and Direct Deployment
+name: CI/CD for nextjs 
 
 on:
   push:
     branches:
       - main
-  pull_request:
-    branches:
-      - main
 
 jobs:
-  ssh-connect:
+  # Build Job
+  build:
     runs-on: ubuntu-latest
-
     steps:
-      # Step 1: Install SSH client
-      - name: Install SSH client
-        run: sudo apt-get update && sudo apt-get install -y openssh-client
-
-      # Step 2: Add SSH private key to authenticate with the server
-      - name: Add SSH private key
-        uses: webfactory/ssh-agent@v0.5.3
-        with:
-          ssh-private-key: ${{ secrets.NETXJSCICD }}
-
-      # Step 3: SSH into the server
-      - name: SSH into the server
-        run: |
-          ssh -o StrictHostKeyChecking=no root@68.183.94.46 << 'EOF'
-            echo "Logged into the server before building the image"
-            # Run any pre-build tasks on the server here if necessary
-            # For example: checking system, setting up environment, etc.
-          EOF
-
-  build-and-test:
-    runs-on: ubuntu-latest
-    needs: ssh-connect  # Ensure SSH connection completes first
-
-    steps:
-      # Step 1: Checkout the code
-      - name: Checkout code
+      - name: Checkout Code
         uses: actions/checkout@v3
 
-      # Step 2: Set up Docker Buildx
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
+      - name: Install Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18.x
 
-      # Step 3: Build the Docker image
-      - name: Build Docker image
-        run: docker build -t nextjs-app:latest .
+      - name: Install Dependencies
+        run: |
+          cd next
+          npm install
 
-      # Step 4: Save Docker image as artifact
-      - name: Save Docker image as artifact
-        run: docker save nextjs-app:latest -o nextjs-app.tar
-      - name: Upload Docker image artifact
+      - name: Build Project
+        run: |
+          cd next
+          npm run build
+
+      - name: Upload artifact to enable deployment
         uses: actions/upload-artifact@v3
         with:
-          name: nextjs-app-image
-          path: nextjs-app.tar
+          name: poduction file
+          path: ./next/build
 
+  # Deploy Job
   deploy:
+   
+    needs: build
+    
     runs-on: ubuntu-latest
-    needs: build-and-test
-
     steps:
-      # Step 1: Download the Docker image artifact
-      - name: Download Docker image artifact
+      - name: Download artifact
         uses: actions/download-artifact@v3
         with:
-          name: nextjs-app-image
+          name: poduction file
+          path: ./next/build
 
-      # Step 2: Copy Docker image to the server
-      - name: Copy Docker image to the server
-        run: scp -o StrictHostKeyChecking=no nextjs-app.tar root@68.183.94.46:/home/nextjs-app.tar
-
-      # Step 3: Load and run the Docker image on the server
-      - name: Deploy Docker image to the server
-        run: |
-          ssh -o StrictHostKeyChecking=no root@68.183.94.46 << 'EOF'
-            docker load -i /home/nextjs-app.tar
-            docker stop nextjs-app || true
-            docker rm nextjs-app || true
-            docker run -d --name nextjs-app -p 3000:3000 nextjs-app:latest
-            rm /home/nextjs-app.tar
-          EOF
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ NEXT.KEY }} #this is the key of the access token
+          publish_dir: ./next/build
