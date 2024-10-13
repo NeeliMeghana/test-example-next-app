@@ -12,4 +12,4 @@ services:
       - .:/usr/src/app  # Sync local files to the container for live reloading
     environment:
       NODE_ENV: production
-    command: ["npm", "run", "start"]
+    
