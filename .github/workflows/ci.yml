@@ -13,6 +13,10 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v3
 
+      - name: Install Dependencies
+        run: |
+             echo "$hostname"
+        
       - name: Install Node
         uses: actions/setup-node@v3
         with:
