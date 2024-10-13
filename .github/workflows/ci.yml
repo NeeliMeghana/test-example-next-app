@@ -1,22 +1,22 @@
 name: Next.js CI/CD with Docker Build, Test, and Direct Deployment
 
 on:
-  workflow_dispatch:  # Allows manual triggering of the workflow
-
+  workflow_dispatch:
+    
 jobs:
   build-and-test:
-    runs-on: self-hosted  # Uses your self-hosted runner
+    runs-on: self-hosted
     
+  
     steps:
       # Step 1: Checkout the code
       - name: Checkout code
         uses: actions/checkout@v3
 
-      # Step 2: Display hostname for debug purposes
-      - name: Display Hostname
+      # Step 2: Displaying hostname
+      - name: hostname
         run: hostname
-
-
-      
-
-      
+        
+      # Step 4: Build the Docker image
+      - name: Build Docker image
+        run:  docker-compose up --build
