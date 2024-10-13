@@ -15,7 +15,7 @@ jobs:
 
       - name: Install Dependencies
         run: |
-             echo "$hostname"
+             hostname
         
       - name: Install Node
         uses: actions/setup-node@v3
