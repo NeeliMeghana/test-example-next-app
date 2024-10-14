@@ -4,11 +4,11 @@ node {
         echo 'Building application using Alpine image...'
         
         // Use the docker image inside this node block
-        app = docker.image('node:14-alpine')
+        app = docker.image('node:18-alpine')
         app.pull() // Pull the image if it doesn't exist locally
 
         // Run inside the docker container
-        app.inside('-p 3000:3000') {
+        app.inside('-p 3008:3000') {
             stage('Install Dependencies') {
                 echo 'Installing dependencies...'
                 sh 'npm install > build_logs/output.log 2>&1'
