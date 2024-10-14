@@ -20,3 +20,12 @@ jobs:
       # Step 4: Build the Docker image
       - name: Build Docker image
         run:  docker-compose up --build
+
+      # Step 5: Save Docker image as artifact
+      - name: Save Docker image as artifact
+        run: docker save nextjs-app:latest -o nextjs-app.tar
+      - name: Upload Docker image artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: nextjs-app-image
+          path: nextjs-app.tar
