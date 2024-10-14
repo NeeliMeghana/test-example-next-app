@@ -5,8 +5,7 @@ node {
         
         // Use the docker image inside this node block
         app = docker.image('node:18-alpine')
-        app.pull() // Pull the image if it doesn't exist locally
-
+       
         // Run inside the docker container
         app.inside('-p 3008:3000') {
             stage('Install Dependencies') {
